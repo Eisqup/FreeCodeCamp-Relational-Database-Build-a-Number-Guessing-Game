@@ -25,4 +25,15 @@ MAIN_FUCTION(){
   fi
 }
 
+NUMBER_GUESS_GAME(){
+
+  # Create random number betwwen 1 and 1000
+  RANDOM_NUMBER=$((( RANDOM % 1000 )  + 1 ))
+
+  # Ask user to guess a number
+  echo "Guess the secret number between 1 and 1000:"
+  read NUMBER_USER_GUESS
+
+}
+
 MAIN_FUCTION
