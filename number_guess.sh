@@ -17,8 +17,8 @@ MAIN_FUCTION(){
     echo "Welcome, $USERNAME! It looks like this is your first time here."
     INSERT_NEW_USER_TO_USERS=$($PSQL "INSERT INTO users(name) VALUES('$USERNAME')")
     USER_ID=$($PSQL "SELECT user_id FROM users WHERE name='$USERNAME'")
-    GAMES_PLAYED_OVERALL=0
-    INSERT_NEW_USER_TO_GAMES=$($PSQL "INSERT INTO games(user_id,  games_played_overall) VALUES($USER_ID ,  $GAMES_PLAYED_OVERALL)")
+    INSERT_NEW_USER_TO_GAMES=$($PSQL "INSERT INTO games(user_id,  games_played_overall) VALUES($USER_ID ,  0)")
+    USER_DATA=$($PSQL "SELECT user_id, games_played_overall, tries_best_game FROM users INNER JOIN games USING (user_id) WHERE name='$USERNAME'")
 
   # if user exists
   else
@@ -45,7 +45,7 @@ MAIN_FUCTION(){
     read NUMBER_USER_GUESS
 
     # if number user guess is not a INT
-    if [[ NUMBER_USER_GUESS =~ ^[0-9]+$ ]]
+    if [[ ! $NUMBER_USER_GUESS =~ ^[0-9]+$ ]]
     then
       echo "That is not an integer, guess again:"
 
@@ -67,6 +67,27 @@ MAIN_FUCTION(){
     fi
   done
 
+  echo "You guessed it in $GUESS_TRIES tries. The secret number was $RANDOME_NUMBER. Nice job!"
+
+  # UPDATE DATA in  DATABASE
+  echo $USER_DATA | while IFS='|' read USER_ID GAMES_PLAYED_OVERALL TRIES_BEST_GAME
+    do
+      # if first game INSERT data
+      if [[ -z $TRIES_BEST_GAME ]]
+      then
+        UPDATE_DATA=$($PSQL "UPDATE games SET tries_best_game=$GUESS_TRIES, games_played_overall=$(( $GAMES_PLAYED_OVERALL + 1)) WHERE user_id=$USER_ID")
+
+      # if new best game
+      elif [[ $TRIES_BEST_GAME > $GUESS_TRIES ]]
+      then
+        UPDATE_DATA=$($PSQL "UPDATE games SET tries_best_game=$GUESS_TRIES, games_played_overall=$(( $GAMES_PLAYED_OVERALL + 1)) WHERE user_id=$USER_ID")
+
+      # if worst games 
+      else
+        UPDATE_DATA=$($PSQL "UPDATE games SET games_played_overall=$(( $GAMES_PLAYED_OVERALL + 1)) WHERE user_id=$USER_ID")
+
+      fi
+    done
 }
 
 
