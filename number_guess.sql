@@ -49,8 +49,8 @@ SET default_table_access_method = heap;
 
 CREATE TABLE public.games (
     user_id integer NOT NULL,
-    tries_best_game integer NOT NULL,
-    games_played_overall integer NOT NULL
+    tries_best_game integer,
+    games_played_overall integer
 );
 
 

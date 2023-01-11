@@ -9,18 +9,20 @@ MAIN_FUCTION(){
   read USERNAME
 
   # Load user data
-  USER_DATA=$($PSQL "SELECT user_id, tries_best_game, games_played_overall FROM users INNER JOIN games USING (user_id) WHERE name='$USERNAME'")
+  USER_DATA=$($PSQL "SELECT user_id, games_played_overall, tries_best_game FROM users INNER JOIN games USING (user_id) WHERE name='$USERNAME'")
 
   # if user not exists
-  if [[ -z $USER_ID ]]
+  if [[ -z $USER_DATA ]]
   then
     echo "Welcome, $USERNAME! It looks like this is your first time here."
-    INSERT_NEW_USER=$($PSQL "INSERT INTO users(name) VALUES('$USERNAME')")
+    INSERT_NEW_USER_TO_USERS=$($PSQL "INSERT INTO users(name) VALUES('$USERNAME')")
     USER_ID=$($PSQL "SELECT user_id FROM users WHERE name='$USERNAME'")
+    GAMES_PLAYED_OVERALL=0
+    INSERT_NEW_USER_TO_GAMES=$($PSQL "INSERT INTO games(user_id,  games_played_overall) VALUES($USER_ID ,  $GAMES_PLAYED_OVERALL)")
 
   # if user exists
   else
-    echo $USER_DATA | while IFS='|' read USER_ID TRIES_BEST_GAME GAMES_PLAYED_OVERALL
+    echo $USER_DATA | while IFS='|' read USER_ID GAMES_PLAYED_OVERALL TRIES_BEST_GAME
     do
       echo "Welcome back, $USERNAME! You have played $GAMES_PLAYED_OVERALL games, and your best game took $TRIES_BEST_GAME guesses."
     done
@@ -54,8 +56,10 @@ MAIN_FUCTION(){
         echo "It's higher than that, guess again:"
 
       # if randome number is smaller
-      else
+      elif [ $NUMBER_USER_GUESS -gt $RANDOME_NUMBER ]
+      then
         echo "It's lower than that, guess again:"
+      
       fi
 
       #add a guess count
