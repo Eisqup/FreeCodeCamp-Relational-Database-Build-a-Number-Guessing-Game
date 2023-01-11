@@ -23,17 +23,47 @@ MAIN_FUCTION(){
       echo "Welcome back, $USERNAME! You have played $GAMES_PLAYED_OVERALL games, and your best game took $TRIES_BEST_GAME guesses."
     done
   fi
-}
 
-NUMBER_GUESS_GAME(){
-
-  # Create random number betwwen 1 and 1000
-  RANDOM_NUMBER=$((( RANDOM % 1000 )  + 1 ))
+  # start guess game
+  # Create random number between 1 and 1000
+  RANDOME_NUMBER=$((( RANDOM % 1000 )  + 1 ))
 
   # Ask user to guess a number
   echo "Guess the secret number between 1 and 1000:"
-  read NUMBER_USER_GUESS
+
+  # count for tries
+  GUESS_TRIES=0
+
+  # loop for the game
+  while [[ $RANDOME_NUMBER != $NUMBER_USER_GUESS ]] || [[ -z $NUMBER_USER_GUESS ]]
+  do
+
+    read NUMBER_USER_GUESS
+
+    # if number user guess is not a INT
+    if [[ NUMBER_USER_GUESS =~ ^[0-9]+$ ]]
+    then
+      echo "That is not an integer, guess again:"
+
+    else
+      # if randome number is bigger
+      if [ $NUMBER_USER_GUESS -lt $RANDOME_NUMBER ]
+      then
+        echo "It's higher than that, guess again:"
+
+      # if randome number is smaller
+      else
+        echo "It's lower than that, guess again:"
+      fi
+
+      #add a guess count
+      GUESS_TRIES=$(( $GUESS_TRIES + 1 ))
+    fi
+  done
 
 }
+
+
+
 
 MAIN_FUCTION
